@@ -42,7 +42,12 @@
                                     </barButtonItem>
                                     <barButtonItem title="불러오기" id="TvQ-66-ST9">
                                         <connections>
-                                            <action selector="fetchData:" destination="BYZ-38-t0r" id="kD8-GP-lfu"/>
+                                            <action selector="fetchButtonTapped:" destination="BYZ-38-t0r" id="kD8-GP-lfu"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="저장하기" id="GtM-Nu-CFG">
+                                        <connections>
+                                            <action selector="saveButtonTapped:" destination="BYZ-38-t0r" id="2C5-td-ozF"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>

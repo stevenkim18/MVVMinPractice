@@ -28,13 +28,33 @@ class ViewController: UIViewController {
         }
     }
     
-    @IBAction func fetchData(_ sender: Any) {
+    @IBAction func fetchButtonTapped(_ sender: Any) {
+        fetchTodos()
+    }
+    
+    @IBAction func saveButtonTapped(_ sender: Any) {
+        saveTodos()
+    }
+    
+    private func saveTodos() {
         indicator.startAnimating()
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
+                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
                 self?.indicator.stopAnimating()
-                self?.todos = ["야곰 강의 보기", "청소 하기", "코테 준비"]
+            }
+        })
+       
+    }
+    
+    private func fetchTodos() {
+        indicator.startAnimating()
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                let data = UserDefaults.standard.string(forKey: "todos")
+                self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
                 self?.tableview.reloadData()
+                self?.indicator.stopAnimating()
             }
         })
     }
