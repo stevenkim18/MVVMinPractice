@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -39,9 +40,19 @@
                                             <action selector="addButtonTapped:" destination="BYZ-38-t0r" id="fW5-VS-Ndx"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem title="불러오기" id="TvQ-66-ST9"/>
+                                    <barButtonItem title="불러오기" id="TvQ-66-ST9">
+                                        <connections>
+                                            <action selector="fetchData:" destination="BYZ-38-t0r" id="kD8-GP-lfu"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" id="QGs-lZ-uYj">
+                                <rect key="frame" x="0.0" y="59" width="393" height="715"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="color" name="AccentColor"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -54,6 +65,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="indicator" destination="QGs-lZ-uYj" id="MS1-qh-Rj4"/>
                         <outlet property="tableview" destination="01i-PP-jOg" id="wH2-9l-dn1"/>
                     </connections>
                 </viewController>
@@ -63,6 +75,9 @@
         </scene>
     </scenes>
     <resources>
+        <namedColor name="AccentColor">
+            <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

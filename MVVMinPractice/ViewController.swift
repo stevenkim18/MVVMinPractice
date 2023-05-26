@@ -10,6 +10,7 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var tableview: UITableView!
+    @IBOutlet weak var indicator: UIActivityIndicatorView!
     
     var todos = ["집안 일", "공부하기", "TIL 쓰기"]
     
@@ -26,6 +27,17 @@ class ViewController: UIViewController {
             tableview.insertRows(at: [IndexPath(row: todos.count-1, section: 0)], with: .automatic)
         }
     }
+    
+    @IBAction func fetchData(_ sender: Any) {
+        indicator.startAnimating()
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                self?.indicator.stopAnimating()
+                self?.todos = ["야곰 강의 보기", "청소 하기", "코테 준비"]
+                self?.tableview.reloadData()
+            }
+        })
+    }
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
@@ -41,7 +53,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
-//        cell?.accessoryType = cell?.accessoryType == UITableViewCell.AccessoryType.none ? .checkmark : .none
         cell?.imageView?.image = cell?.imageView?.image == nil ? UIImage(systemName: "checkmark") : nil
     }
     
@@ -56,13 +67,5 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-}
-
-extension String {
-    func strikeThrough() -> NSAttributedString {
-            let attributeString: NSMutableAttributedString = NSMutableAttributedString(string: self)
-            attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: NSMakeRange(0, attributeString.length))
-            return attributeString
-        }
 }
 
