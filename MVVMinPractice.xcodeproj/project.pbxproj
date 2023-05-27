@@ -15,6 +15,7 @@
 		C042A23D29FCD3B6004818A8 /* MVVMinPracticeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C042A23C29FCD3B6004818A8 /* MVVMinPracticeTests.swift */; };
 		C042A24729FCD3B6004818A8 /* MVVMinPracticeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C042A24629FCD3B6004818A8 /* MVVMinPracticeUITests.swift */; };
 		C042A24929FCD3B6004818A8 /* MVVMinPracticeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C042A24829FCD3B6004818A8 /* MVVMinPracticeUITestsLaunchTests.swift */; };
+		C0AB9FD62A20AB0F0077B36A /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AB9FD52A20AB0F0077B36A /* View.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		C042A24229FCD3B6004818A8 /* MVVMinPracticeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MVVMinPracticeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C042A24629FCD3B6004818A8 /* MVVMinPracticeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMinPracticeUITests.swift; sourceTree = "<group>"; };
 		C042A24829FCD3B6004818A8 /* MVVMinPracticeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMinPracticeUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		C0AB9FD52A20AB0F0077B36A /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 				C042A22E29FCD3B6004818A8 /* Assets.xcassets */,
 				C042A23029FCD3B6004818A8 /* LaunchScreen.storyboard */,
 				C042A23329FCD3B6004818A8 /* Info.plist */,
+				C0AB9FD52A20AB0F0077B36A /* View.swift */,
 			);
 			path = MVVMinPractice;
 			sourceTree = "<group>";
@@ -257,6 +260,7 @@
 			files = (
 				C042A22A29FCD3B5004818A8 /* ViewController.swift in Sources */,
 				C042A22629FCD3B5004818A8 /* AppDelegate.swift in Sources */,
+				C0AB9FD62A20AB0F0077B36A /* View.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
