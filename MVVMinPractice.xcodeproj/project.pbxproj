@@ -16,6 +16,7 @@
 		C042A24729FCD3B6004818A8 /* MVVMinPracticeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C042A24629FCD3B6004818A8 /* MVVMinPracticeUITests.swift */; };
 		C042A24929FCD3B6004818A8 /* MVVMinPracticeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C042A24829FCD3B6004818A8 /* MVVMinPracticeUITestsLaunchTests.swift */; };
 		C0AB9FD62A20AB0F0077B36A /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AB9FD52A20AB0F0077B36A /* View.swift */; };
+		C0AB9FD82A21EFDC0077B36A /* Presenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AB9FD72A21EFDC0077B36A /* Presenter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		C042A24629FCD3B6004818A8 /* MVVMinPracticeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMinPracticeUITests.swift; sourceTree = "<group>"; };
 		C042A24829FCD3B6004818A8 /* MVVMinPracticeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMinPracticeUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		C0AB9FD52A20AB0F0077B36A /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
+		C0AB9FD72A21EFDC0077B36A /* Presenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presenter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,11 +103,12 @@
 			children = (
 				C042A22529FCD3B5004818A8 /* AppDelegate.swift */,
 				C042A22929FCD3B5004818A8 /* ViewController.swift */,
+				C0AB9FD52A20AB0F0077B36A /* View.swift */,
+				C0AB9FD72A21EFDC0077B36A /* Presenter.swift */,
 				C042A22B29FCD3B5004818A8 /* Main.storyboard */,
 				C042A22E29FCD3B6004818A8 /* Assets.xcassets */,
 				C042A23029FCD3B6004818A8 /* LaunchScreen.storyboard */,
 				C042A23329FCD3B6004818A8 /* Info.plist */,
-				C0AB9FD52A20AB0F0077B36A /* View.swift */,
 			);
 			path = MVVMinPractice;
 			sourceTree = "<group>";
@@ -260,6 +263,7 @@
 			files = (
 				C042A22A29FCD3B5004818A8 /* ViewController.swift in Sources */,
 				C042A22629FCD3B5004818A8 /* AppDelegate.swift in Sources */,
+				C0AB9FD82A21EFDC0077B36A /* Presenter.swift in Sources */,
 				C0AB9FD62A20AB0F0077B36A /* View.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

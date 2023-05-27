@@ -7,10 +7,12 @@
 
 import UIKit
 
+typealias Todo = String
+
 class ViewController: UIViewController {
 
-    @IBOutlet weak var tableview: UITableView?
-    @IBOutlet weak var indicator: UIActivityIndicatorView?
+//    @IBOutlet weak var tableview: UITableView?
+//    @IBOutlet weak var indicator: UIActivityIndicatorView?
     
     lazy var mainView: View = {
         let view = View()
@@ -19,7 +21,9 @@ class ViewController: UIViewController {
         return view
     }()
     
-    var todos = ["집안 일", "공부하기", "TIL 쓰기"]
+    let presenter = Presenter()
+    
+//    var todos = ["집안 일", "공부하기", "TIL 쓰기"]
     
     override func loadView() {        
         self.view = mainView
@@ -33,35 +37,30 @@ class ViewController: UIViewController {
 
 extension ViewController: ViewDelegate {
     func getTodo(index: Int) -> String {
-        todos[index]
+        presenter.todo(index: index)
     }
     
     func todoCount() -> Int {
-        return todos.count
+        presenter.todoCount()
     }
     
     func addTodo() {
-        todos.append("할일")
+        presenter.addTodo("할일")
     }
     
     func fetchTodos(completion: @escaping () -> ()) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: { [weak self] in
-            let data = UserDefaults.standard.string(forKey: "todos")
-            self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
+        presenter.fetchTodos {
             completion()
-        })
+        }
     }
     
     func saveTodos(completion: @escaping () -> ()) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                completion()
-            }
-        })
+        presenter.saveTodos {
+            completion()
+        }
     }
     
     func removeTodo(index: Int) {
-        todos.remove(at: index)
+        presenter.removeTodo(index: index)
     }
 }
