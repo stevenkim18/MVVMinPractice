@@ -7,11 +7,13 @@
 
 import UIKit
 
-protocol ViewDelegate: UITableViewDelegate, UITableViewDataSource, AnyObject {
+protocol ViewDelegate: AnyObject {
+    func getTodo(index: Int) -> String
     func todoCount() -> Int
     func addTodo()
     func fetchTodos(completion: @escaping () -> ())
     func saveTodos(completion: @escaping () -> ())
+    func removeTodo(index: Int)
 }
 
 class View: UIView {
@@ -66,16 +68,18 @@ class View: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setDelegate(_ delegate: ViewDelegate) {
-        self.delegate = delegate
-        tableview.delegate = delegate
-        tableview.dataSource = delegate
-    }
+//    func setDelegate(_ delegate: ViewDelegate) {
+//        self.delegate = delegate
+//        tableview.delegate = delegate
+//        tableview.dataSource = delegate
+//    }
     
     // MARK: Private
     private func configureUI() {
         self.backgroundColor = .systemBackground
         self.addSubview(tableview)
+        tableview.delegate = self
+        tableview.dataSource = self
         self.addSubview(toolbar)
         toolbar.items = [addBarButton, fetchBarButton, saveBarButton]
         self.addSubview(indicatorView)
@@ -126,5 +130,33 @@ class View: UIView {
             }
         }
     }
-    
 }
+
+extension View: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        delegate?.todoCount() ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
+        cell?.textLabel?.text = delegate?.getTodo(index: indexPath.row)
+        return cell ?? UITableViewCell()
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)
+        cell?.imageView?.image = cell?.imageView?.image == nil ? UIImage(systemName: "checkmark") : nil
+    }
+
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        true
+    }
+
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            delegate?.removeTodo(index: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
+}
+

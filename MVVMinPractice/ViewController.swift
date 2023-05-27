@@ -14,7 +14,8 @@ class ViewController: UIViewController {
     
     lazy var mainView: View = {
         let view = View()
-        view.setDelegate(self)
+        view.delegate = self
+//        view.setDelegate(self)
         return view
     }()
     
@@ -31,6 +32,10 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ViewDelegate {
+    func getTodo(index: Int) -> String {
+        todos[index]
+    }
+    
     func todoCount() -> Int {
         return todos.count
     }
@@ -56,43 +61,7 @@ extension ViewController: ViewDelegate {
         })
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        todos.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        cell?.textLabel?.text = todos[indexPath.row]
-        return cell ?? UITableViewCell()
+    func removeTodo(index: Int) {
+        todos.remove(at: index)
     }
 }
-
-//extension ViewController: UITableViewDelegate, UITableViewDataSource {
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        todos.count
-//    }
-//
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-//        cell?.textLabel?.text = todos[indexPath.row]
-//        return cell ?? UITableViewCell()
-//    }
-//
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let cell = tableView.cellForRow(at: indexPath)
-//        cell?.imageView?.image = cell?.imageView?.image == nil ? UIImage(systemName: "checkmark") : nil
-//    }
-//
-//    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-//        true
-//    }
-//
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            todos.remove(at: indexPath.row)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-//        }
-//    }
-//
-//}
-
