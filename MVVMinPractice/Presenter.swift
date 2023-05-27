@@ -13,6 +13,8 @@ class Presenter {
     
     weak var view: UIViewController?
     
+    let service = APIService()
+    
     func todo(index: Int) -> Todo {
         todos[index]
     }
@@ -30,20 +32,16 @@ class Presenter {
     }
     
     func fetchTodos(completion: @escaping ()->()) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: { [weak self] in
+        service.fetch(key: "todos") { [weak self] todos in
             guard let self = self else { return }
-            let data = UserDefaults.standard.string(forKey: "todos")
-            self.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
+            self.todos = todos
             completion()
-        })
+        }
     }
     
     func saveTodos(completion: @escaping ()->()) {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                completion()
-            }
-        })
+        service.save(key: "todos", value: todos) {
+            completion()
+        }
     }
 }
