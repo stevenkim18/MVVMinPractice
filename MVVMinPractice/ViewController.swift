@@ -10,24 +10,17 @@ import UIKit
 typealias Todo = String
 
 class ViewController: UIViewController {
-
-//    @IBOutlet weak var tableview: UITableView?
-//    @IBOutlet weak var indicator: UIActivityIndicatorView?
     
     lazy var mainView: View = {
         let view = View()
         view.delegate = self
-//        view.setDelegate(self)
         return view
     }()
     
     let presenter = Presenter()
-    
-//    var todos = ["집안 일", "공부하기", "TIL 쓰기"]
-    
+        
     override func loadView() {        
         self.view = mainView
-//        super.loadView()
     }
     
     override func viewDidLoad() {
