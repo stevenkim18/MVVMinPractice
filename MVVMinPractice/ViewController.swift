@@ -9,7 +9,6 @@ import UIKit
 
 typealias Todo = String
 
-// 여기서
 class Presenter {
     private var todos = ["집안 일", "공부하기", "TIL 쓰기"]
     
@@ -175,7 +174,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableview: UITableView!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
         
-//    let presenter = Presenter()
     let viewModel = ViewModel()
     
     override func viewDidLoad() {
@@ -200,22 +198,14 @@ class ViewController: UIViewController {
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
-        let alertController = UIAlertController(title: "할 일 추가", message: nil, preferredStyle: .alert)
-        let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
-            if let textField = alertController.textFields?.first,
-               let text = textField.text {
-                guard let self = self else { return }
-                self.viewModel.addTodo(text)
+        alert(title: "할일 추가", message: "", options: "취소", "추가") { [weak self] (alert, index) in
+            if index == 1,
+               let textField = alert.textFields?.first,
+               let text = textField.text,
+               text.isEmpty == false {
+                self?.viewModel.addTodo(text)
             }
         }
-        
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel) { (_) in }
-        alertController.addTextField { (textField) in
-            textField.placeholder = "할 일을 입력해주세요."
-        }
-        alertController.addAction(addAction)
-        alertController.addAction(cancelAction)
-        self.present(alertController, animated: true, completion: nil)
     }
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
@@ -224,6 +214,24 @@ class ViewController: UIViewController {
     
     @IBAction func saveButtonTapped(_ sender: Any) {
         viewModel.saveTodos()
+    }
+}
+
+extension ViewController {
+    func alert(title: String,
+               message: String,
+               options: String...,
+               completion: @escaping (UIAlertController ,Int) -> ()) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addTextField { (textField) in
+            textField.placeholder = "할 일을 입력해주세요."
+        }
+        options.enumerated().forEach { (index, option) in
+            alertController.addAction(UIAlertAction(title: option, style: .default, handler: { (action) in
+                completion(alertController, index)
+            }))
+        }
+        self.present(alertController, animated: true, completion: nil)
     }
 }
 
