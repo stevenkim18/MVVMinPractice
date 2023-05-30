@@ -59,7 +59,14 @@ class ViewModel {
         }
     }
     
+    private var isLoading = false {
+        didSet {
+            loadingListener?(isLoading)
+        }
+    }
+    
     var todoListener: (() -> ())?
+    var loadingListener: ((Bool) -> ())?
     
     var todoCount: Int {
         todos.count
@@ -73,21 +80,23 @@ class ViewModel {
         todos.append(todo)
     }
     
-    func saveTodos(completion: @escaping ()->()) {
+    func saveTodos() {
+        isLoading = true
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                completion()
+                self?.isLoading = false
             }
         })
     }
     
-    func fetchTodos(completion: @escaping ()->()) {
+    func fetchTodos() {
+        isLoading = true
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 let data = UserDefaults.standard.string(forKey: "todos")
                 self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
-                completion()
+                self?.isLoading = false
             }
         })
     }
@@ -111,10 +120,15 @@ class ViewController: UIViewController {
         tableview.dataSource = self
         
         viewModel.todoListener = updateTableview
+        viewModel.loadingListener = updateLoadingView
     }
     
     private func updateTableview() {
         tableview.reloadData()
+    }
+    
+    private func updateLoadingView(_ flag: Bool) {
+        flag == true ? indicator.startAnimating() : indicator.stopAnimating()
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
@@ -137,17 +151,11 @@ class ViewController: UIViewController {
     }
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
-        indicator.startAnimating()
-        viewModel.fetchTodos() { [weak self] in
-            self?.indicator.stopAnimating()
-        }
+        viewModel.fetchTodos()
     }
     
     @IBAction func saveButtonTapped(_ sender: Any) {
-        indicator.startAnimating()
-        viewModel.saveTodos() { [weak self] in
-            self?.indicator.stopAnimating()
-        }
+        viewModel.saveTodos()
     }
 }
 
