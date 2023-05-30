@@ -51,13 +51,84 @@ class Presenter {
     }
 }
 
-// binding didset
-class ViewModel {
+// Service 분리
+class Service {
+    private let userDefaluts = UserDefaults.standard
+    
+    func save(key: String, value: String, completion: @escaping ()->()) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: { [weak self] in
+            self?.userDefaluts.set(value, forKey: key)
+            completion()
+        })
+    }
+    
+    func fetch(key: String, completion: @escaping (String?)->()) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: { [weak self] in
+            let data = self?.userDefaluts.string(forKey: key)
+            completion(data)
+        })
+    }
+}
+
+// 모델 분리
+class TodoModel {
     private var todos = ["집안 일", "공부하기", "TIL 쓰기"] {
         didSet {
             todoListener?()
         }
     }
+    
+    var todoListener: (() -> ())?
+    
+    let service = Service()
+    
+    var todoCount: Int {
+        todos.count
+    }
+    
+    func getTodo(index: Int) -> Todo {
+        todos[index]
+    }
+    
+    func getTodos() -> [Todo] {
+        todos
+    }
+    
+    func updateTodos(_ todos: [Todo]) {
+        self.todos = todos
+    }
+    
+    func addTodo(_ todo: Todo) {
+        todos.append(todo)
+    }
+    
+    func saveTodos(completion: @escaping ()->()) {
+        let value = todos.joined(separator: ",")
+        service.save(key: "todos", value: value) {
+            completion()
+        }
+    }
+    
+    func fetchTodos(completion: @escaping ()->()) {
+        service.fetch(key: "todos") { [weak self] data in
+            let todos = data?.components(separatedBy: ",")
+            self?.todos = todos ?? [""]
+            completion()
+        }
+    }
+    
+    func deleteTodos(index: Int) {
+        todos.remove(at: index)
+    }
+    
+}
+
+class ViewModel {
+    lazy var todoModel: TodoModel = {
+        let model = TodoModel()
+        model.todoListener = todoListener
+        return model
+    }()
     
     private var isLoading = false {
         didSet {
@@ -69,40 +140,33 @@ class ViewModel {
     var loadingListener: ((Bool) -> ())?
     
     var todoCount: Int {
-        todos.count
+        todoModel.todoCount
     }
     
     func getTodo(index: Int) -> Todo {
-        todos[index]
+        todoModel.getTodo(index: index)
     }
     
     func addTodo(_ todo: Todo) {
-        todos.append(todo)
+        todoModel.addTodo(todo)
     }
     
     func saveTodos() {
         isLoading = true
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                self?.isLoading = false
-            }
-        })
+        todoModel.saveTodos() { [weak self] in
+            self?.isLoading = false
+        }
     }
     
     func fetchTodos() {
         isLoading = true
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                let data = UserDefaults.standard.string(forKey: "todos")
-                self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
-                self?.isLoading = false
-            }
-        })
+        todoModel.fetchTodos() { [weak self] in
+            self?.isLoading = false
+        }
     }
     
     func deleteTodos(index: Int) {
-        todos.remove(at: index)
+        todoModel.deleteTodos(index: index)
     }
 }
 
@@ -124,11 +188,15 @@ class ViewController: UIViewController {
     }
     
     private func updateTableview() {
-        tableview.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.tableview.reloadData()
+        }
     }
     
     private func updateLoadingView(_ flag: Bool) {
-        flag == true ? indicator.startAnimating() : indicator.stopAnimating()
+        DispatchQueue.main.async { [weak self] in
+            flag == true ? self?.indicator.startAnimating() : self?.indicator.stopAnimating()
+        }
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
