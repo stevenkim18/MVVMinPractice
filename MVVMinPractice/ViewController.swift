@@ -18,6 +18,7 @@ class ViewController: UIViewController {
     }()
     
     let presenter = Presenter()
+    let viewModel = ViewModel()
         
     override func loadView() {        
         self.view = mainView
@@ -25,35 +26,33 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel.loadingListener = mainView.setIndicatorView
+        viewModel.tableviewListener = mainView.reloadTableview
     }
 }
 
 extension ViewController: ViewDelegate {
     func getTodo(index: Int) -> String {
-        presenter.todo(index: index)
+        return viewModel.getTodo(index: index)
     }
     
     func todoCount() -> Int {
-        presenter.todoCount()
+        viewModel.todosCount
     }
     
     func addTodo() {
-        presenter.addTodo("할일")
+        viewModel.addTodo()
     }
     
-    func fetchTodos(completion: @escaping () -> ()) {
-        presenter.fetchTodos {
-            completion()
-        }
+    func fetchTodos() {
+        viewModel.fetchTodos()
     }
     
-    func saveTodos(completion: @escaping () -> ()) {
-        presenter.saveTodos {
-            completion()
-        }
+    func saveTodos() {
+        viewModel.saveTodos()
     }
     
     func removeTodo(index: Int) {
-        presenter.removeTodo(index: index)
+        viewModel.deleteTodo(index: index)
     }
 }

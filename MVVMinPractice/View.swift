@@ -11,8 +11,8 @@ protocol ViewDelegate: AnyObject {
     func getTodo(index: Int) -> String
     func todoCount() -> Int
     func addTodo()
-    func fetchTodos(completion: @escaping () -> ())
-    func saveTodos(completion: @escaping () -> ())
+    func fetchTodos()
+    func saveTodos()
     func removeTodo(index: Int)
 }
 
@@ -68,12 +68,6 @@ class View: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-//    func setDelegate(_ delegate: ViewDelegate) {
-//        self.delegate = delegate
-//        tableview.delegate = delegate
-//        tableview.dataSource = delegate
-//    }
-    
     // MARK: Private
     private func configureUI() {
         self.backgroundColor = .systemBackground
@@ -105,30 +99,23 @@ class View: UIView {
     
     // MARK: Button Action
     @objc func addButtonTapped() {
-        let count = delegate?.todoCount()
         delegate?.addTodo()
-        tableview.performBatchUpdates {
-            tableview.insertRows(at: [IndexPath(row: (count ?? 0), section: 0)], with: .automatic)
-        }
     }
     
     @objc func fetchButtonTapped() {
-        indicatorView.startAnimating()
-        delegate?.fetchTodos() {
-            DispatchQueue.main.async { [weak self] in
-                self?.tableview.reloadData()
-                self?.indicatorView.stopAnimating()
-            }
-        }
+        delegate?.fetchTodos()
     }
     
     @objc func saveButtonTapped() {
-        indicatorView.startAnimating()
-        delegate?.saveTodos {
-            DispatchQueue.main.async { [weak self] in
-                self?.indicatorView.stopAnimating()
-            }
-        }
+        delegate?.saveTodos()
+    }
+    
+    func setIndicatorView(isLoading: Bool) {
+        isLoading ? indicatorView.startAnimating() : indicatorView.stopAnimating()
+    }
+    
+    func reloadTableview() {
+        tableview.reloadData()
     }
 }
 
@@ -139,6 +126,7 @@ extension View: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
+        cell?.selectionStyle = .none
         cell?.textLabel?.text = delegate?.getTodo(index: indexPath.row)
         return cell ?? UITableViewCell()
     }
@@ -155,7 +143,6 @@ extension View: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             delegate?.removeTodo(index: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
 }
