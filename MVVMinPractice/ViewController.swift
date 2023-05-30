@@ -18,14 +18,13 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
-        
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
         let alertController = UIAlertController(title: "할 일 추가", message: nil, preferredStyle: .alert)
         let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
             if let textField = alertController.textFields?.first,
-               let text = textField.text {
+               let text = textField.text, text.isEmpty == false {
                 guard let self = self else { return }
                 self.todos.append(text)
                 self.tableview.performBatchUpdates {
@@ -44,31 +43,22 @@ class ViewController: UIViewController {
     }
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
-        fetchTodos()
-    }
-    
-    @IBAction func saveButtonTapped(_ sender: Any) {
-        saveTodos()
-    }
-    
-    private func saveTodos() {
-        indicator.startAnimating()
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                self?.indicator.stopAnimating()
-            }
-        })
-       
-    }
-    
-    private func fetchTodos() {
         indicator.startAnimating()
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 let data = UserDefaults.standard.string(forKey: "todos")
                 self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
                 self?.tableview.reloadData()
+                self?.indicator.stopAnimating()
+            }
+        })
+    }
+    
+    @IBAction func saveButtonTapped(_ sender: Any) {
+        indicator.startAnimating()
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
                 self?.indicator.stopAnimating()
             }
         })
