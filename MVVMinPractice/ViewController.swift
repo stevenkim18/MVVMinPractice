@@ -9,10 +9,57 @@ import UIKit
 
 typealias Todo = String
 
+// 여기서
 class Presenter {
     private var todos = ["집안 일", "공부하기", "TIL 쓰기"]
     
     weak var view: ViewController?
+    
+    var todoCount: Int {
+        todos.count
+    }
+    
+    func getTodo(index: Int) -> Todo {
+        todos[index]
+    }
+    
+    func addTodo(_ todo: Todo) {
+        todos.append(todo)
+    }
+    
+    func saveTodos(completion: @escaping ()->()) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
+                completion()
+            }
+        })
+    }
+    
+    func fetchTodos(completion: @escaping ()->()) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                let data = UserDefaults.standard.string(forKey: "todos")
+                self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
+                completion()
+            }
+        })
+    }
+    
+    func deleteTodos(index: Int) {
+        todos.remove(at: index)
+    }
+}
+
+// binding didset
+class ViewModel {
+    private var todos = ["집안 일", "공부하기", "TIL 쓰기"] {
+        didSet {
+            todoListener?()
+        }
+    }
+    
+    var todoListener: (() -> ())?
     
     var todoCount: Int {
         todos.count
@@ -55,14 +102,19 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableview: UITableView!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
         
-    let presenter = Presenter()
+//    let presenter = Presenter()
+    let viewModel = ViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
         
-        presenter.view = self
+        viewModel.todoListener = updateTableview
+    }
+    
+    private func updateTableview() {
+        tableview.reloadData()
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
@@ -71,10 +123,7 @@ class ViewController: UIViewController {
             if let textField = alertController.textFields?.first,
                let text = textField.text {
                 guard let self = self else { return }
-                self.presenter.addTodo(text)
-                self.tableview.performBatchUpdates {
-                    self.tableview.insertRows(at: [IndexPath(row: self.presenter.todoCount-1, section: 0)], with: .automatic)
-                }
+                self.viewModel.addTodo(text)
             }
         }
         
@@ -89,15 +138,14 @@ class ViewController: UIViewController {
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        presenter.fetchTodos() { [weak self] in
-            self?.tableview.reloadData()
+        viewModel.fetchTodos() { [weak self] in
             self?.indicator.stopAnimating()
         }
     }
     
     @IBAction func saveButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        presenter.saveTodos() { [weak self] in
+        viewModel.saveTodos() { [weak self] in
             self?.indicator.stopAnimating()
         }
     }
@@ -105,12 +153,12 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.todoCount
+        viewModel.todoCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        cell?.textLabel?.text = presenter.getTodo(index: indexPath.row)
+        cell?.textLabel?.text = viewModel.getTodo(index: indexPath.row)
         return cell ?? UITableViewCell()
     }
     
@@ -125,8 +173,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            presenter.deleteTodos(index: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            viewModel.deleteTodos(index: indexPath.row)
         }
     }
 }
