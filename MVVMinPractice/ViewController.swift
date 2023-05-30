@@ -22,10 +22,25 @@ class ViewController: UIViewController {
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
-        todos.append("할일")
-        tableview.performBatchUpdates {
-            tableview.insertRows(at: [IndexPath(row: todos.count-1, section: 0)], with: .automatic)
+        let alertController = UIAlertController(title: "할 일 추가", message: nil, preferredStyle: .alert)
+        let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
+            if let textField = alertController.textFields?.first,
+               let text = textField.text {
+                guard let self = self else { return }
+                self.todos.append(text)
+                self.tableview.performBatchUpdates {
+                    self.tableview.insertRows(at: [IndexPath(row: self.todos.count-1, section: 0)], with: .automatic)
+                }
+            }
         }
+        
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel) { (_) in }
+        alertController.addTextField { (textField) in
+            textField.placeholder = "할 일을 입력해주세요."
+        }
+        alertController.addAction(addAction)
+        alertController.addAction(cancelAction)
+        self.present(alertController, animated: true, completion: nil)
     }
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
@@ -86,6 +101,5 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
-    
 }
 
