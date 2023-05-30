@@ -26,22 +26,21 @@ class Presenter {
         todos.append(todo)
     }
     
-    func saveTodos() {
+    func saveTodos(completion: @escaping ()->()) {
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                self?.view?.indicator.stopAnimating()
+                completion()
             }
         })
     }
     
-    func fetchTodos() {
+    func fetchTodos(completion: @escaping ()->()) {
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 let data = UserDefaults.standard.string(forKey: "todos")
                 self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
-                self?.view?.tableview.reloadData()
-                self?.view?.indicator.stopAnimating()
+                completion()
             }
         })
     }
@@ -90,12 +89,17 @@ class ViewController: UIViewController {
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        presenter.fetchTodos()
+        presenter.fetchTodos() { [weak self] in
+            self?.tableview.reloadData()
+            self?.indicator.stopAnimating()
+        }
     }
     
     @IBAction func saveButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        presenter.saveTodos()
+        presenter.saveTodos() { [weak self] in
+            self?.indicator.stopAnimating()
+        }
     }
 }
 
