@@ -51,17 +51,125 @@ class Presenter {
     }
 }
 
+class Model {
+    private var todos = ["집안 일", "공부하기", "TIL 쓰기"] {
+        didSet {
+            todosListener?()
+        }
+    }
+    
+    var todosListener: (() -> ())?
+    
+    var todoCount: Int {
+        todos.count
+    }
+    
+    func getTodo(index: Int) -> Todo {
+        todos[index]
+    }
+    
+    func addTodo(_ todo: Todo) {
+        self.todos.append(todo)
+    }
+    
+    func fetchTodos(completion: @escaping () -> ()) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                let data = UserDefaults.standard.string(forKey: "todos")
+                self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
+                completion()
+            }
+        })
+    }
+    
+    func saveTodos(completion: @escaping () -> ()) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
+                completion()
+            }
+        })
+    }
+    
+    func removeTodo(index: Int) {
+        todos.remove(at: index)
+    }
+}
+
+
+// binding -> didset
+class ViewModel {
+    
+    lazy var model: Model = {
+        let model = Model()
+        // TODO: 모델을 직접 바인딩 하지 않고 뷰모델 만을 바인딩 하는 방법.
+        model.todosListener = self.todosListener
+        return model
+    }()
+    
+    private var isLoading = false {
+        didSet {
+            loadingListener?(isLoading)
+        }
+    }
+    
+    var todosListener: (() -> ())?
+    var loadingListener: ((Bool)->())?
+    
+    var todoCount: Int {
+        model.todoCount
+    }
+    
+    func getTodo(index: Int) -> Todo {
+        model.getTodo(index: index)
+    }
+    
+    func addTodo(_ todo: Todo) {
+        model.addTodo(todo)
+    }
+    
+    func fetchTodos() {
+        isLoading = true
+        model.fetchTodos() { [weak self] in
+            self?.isLoading = false
+        }
+    }
+    
+    func saveTodos() {
+        isLoading = true
+        model.saveTodos() { [weak self] in
+            self?.isLoading = false
+        }
+    }
+    
+    func removeTodo(index: Int) {
+        model.removeTodo(index: index)
+    }
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var tableview: UITableView!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
     
-    let presenter = Presenter()
+    let viewmodel = ViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
+        
+        viewmodel.todosListener = updateTableView
+        viewmodel.loadingListener = updateLoadingView
+    }
+    
+    // MARK - bind funcs
+    private func updateTableView() {
+        tableview.reloadData()
+    }
+    
+    private func updateLoadingView(_ isLoading: Bool) {
+        isLoading == true ? indicator.startAnimating() : indicator.stopAnimating()
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
@@ -70,10 +178,7 @@ class ViewController: UIViewController {
             if let textField = alertController.textFields?.first,
                let text = textField.text, text.isEmpty == false {
                 guard let self = self else { return }
-                presenter.addTodo(text)
-                self.tableview.performBatchUpdates {
-                    self.tableview.insertRows(at: [IndexPath(row: self.presenter.todoCount-1, section: 0)], with: .automatic)
-                }
+                viewmodel.addTodo(text)
             }
         }
         
@@ -87,29 +192,22 @@ class ViewController: UIViewController {
     }
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
-        indicator.startAnimating()
-        presenter.fetchTodos { [weak self] in
-            self?.tableview.reloadData()
-            self?.indicator.stopAnimating()
-        }
+        viewmodel.fetchTodos()
     }
     
     @IBAction func saveButtonTapped(_ sender: Any) {
-        indicator.startAnimating()
-        presenter.saveTodos() { [weak self] in
-            self?.indicator.stopAnimating()
-        }
+        viewmodel.saveTodos()
     }
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.todoCount
+        viewmodel.todoCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        cell?.textLabel?.text = presenter.getTodo(index: indexPath.row)
+        cell?.textLabel?.text = viewmodel.getTodo(index: indexPath.row)
         return cell ?? UITableViewCell()
     }
     
@@ -123,10 +221,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            presenter.removeTodo(index: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        }
+        viewmodel.removeTodo(index: indexPath.row)
     }
 }
 
