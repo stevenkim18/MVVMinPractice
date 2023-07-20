@@ -25,6 +25,7 @@ Sample Todo App
 - 할 일 추가, 삭제
 - 저장하기(로컬)
 - 불러오기(로컬)
+<br>
 ![Simulator Screen Recording - iPhone 14 Pro - 2023-07-20 at 21 09 46](https://github.com/stevenkim18/MVVMinPractice/assets/35272802/0f66a803-94a0-40e8-aa51-57e22581a7f5)
 
 ### MVC
