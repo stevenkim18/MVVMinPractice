@@ -21,7 +21,10 @@
 - (보너스) Model은 무엇이고 iOS 개발에서 어떤 것들이 있을까요?
 
 ## 활동학습 프로젝트
-Sample Todo App<br>
+Sample Todo App
+- 할 일 추가, 삭제
+- 저장하기(로컬)
+- 불러오기(로컬)
 ![Simulator Screen Recording - iPhone 14 Pro - 2023-07-20 at 21 09 46](https://github.com/stevenkim18/MVVMinPractice/assets/35272802/0f66a803-94a0-40e8-aa51-57e22581a7f5)
 
 ### MVC
@@ -258,6 +261,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 ### MVVM
 - didset으로 바인딩
 - Service 분리
+- Todo를 관리하는 모델 분리
 
 <details>
 <summary>코드</summary>
@@ -522,3 +526,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 
 </div>
 </details>
+
+## 강의 중 받은 질문
+- Todo를 관리하는 모델을 분리하게 되면서 View->ViewModel->Model로 바인딩하고 있는데 이게 받는 건지? View->Model로 한 번에 바인딩 할 수 있는 방법은 없는지?
