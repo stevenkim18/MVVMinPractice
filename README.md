@@ -1,4 +1,8 @@
 # MVVM특강
+
+<img width=700 src="https://github.com/stevenkim18/MVVMinPractice/assets/35272802/8d3bbab6-ff71-411b-be5d-14affe3a72af">
+
+
 ## 개요
 - 대상: 야곰아카데미 커리어 캠프 8기 교육생
 - 일시: 2023.05.30(화) 오후 7시 30분
