@@ -9,28 +9,27 @@ import UIKit
 
 class Presenter {
     private var todos = [String]()
-    weak var view: ViewController?
+//    weak var view: ViewController?
     
     func addTodo(_ todo: String) {
         todos.append(todo)
     }
     
-    func fetchTodos() {
+    func fetchTodos(completion: @escaping ()->()) {
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 let data = UserDefaults.standard.string(forKey: "todos")
                 self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
-                self?.view?.tableview.reloadData()
-                self?.view?.indicator.stopAnimating()
+                completion()
             }
         })
     }
     
-    func saveTodos() {
+    func saveTodos(completion: @escaping ()->()) {
         DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
             DispatchQueue.main.async { [weak self] in
                 UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                self?.view?.indicator.stopAnimating()
+                completion()
             }
         })
     }
@@ -59,8 +58,10 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
-        presenter.view = self
-        presenter.fetchTodos()
+        presenter.fetchTodos() { [weak self] in
+            self?.tableview.reloadData()
+            self?.indicator.stopAnimating()
+        }
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
@@ -87,12 +88,17 @@ class ViewController: UIViewController {
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        self.presenter.fetchTodos()
+        self.presenter.fetchTodos() { [weak self] in
+            self?.tableview.reloadData()
+            self?.indicator.stopAnimating()
+        }
     }
     
     @IBAction func saveButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        self.presenter.saveTodos()
+        self.presenter.saveTodos() { [weak self] in
+            self?.indicator.stopAnimating()
+        }
     }
 }
 
