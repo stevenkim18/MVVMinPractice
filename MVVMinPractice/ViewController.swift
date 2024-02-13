@@ -7,17 +7,60 @@
 
 import UIKit
 
+class Presenter {
+    private var todos = [String]()
+    weak var view: ViewController?
+    
+    func addTodo(_ todo: String) {
+        todos.append(todo)
+    }
+    
+    func fetchTodos() {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                let data = UserDefaults.standard.string(forKey: "todos")
+                self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
+                self?.view?.tableview.reloadData()
+                self?.view?.indicator.stopAnimating()
+            }
+        })
+    }
+    
+    func saveTodos() {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
+            DispatchQueue.main.async { [weak self] in
+                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
+                self?.view?.indicator.stopAnimating()
+            }
+        })
+    }
+    
+    func todo(index: Int) -> String {
+        return self.todos[index]
+    }
+    
+    func todosCount() -> Int {
+        return todos.count
+    }
+    
+    func removeTodo(index: Int) {
+        self.todos.remove(at: index)
+    }
+}
+
 class ViewController: UIViewController {
 
     @IBOutlet weak var tableview: UITableView!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
     
-    var todos = ["집안 일", "공부하기", "TIL 쓰기"]
+    let presenter = Presenter()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableview.delegate = self
         tableview.dataSource = self
+        presenter.view = self
+        presenter.fetchTodos()
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
@@ -26,9 +69,9 @@ class ViewController: UIViewController {
             if let textField = alertController.textFields?.first,
                let text = textField.text, text.isEmpty == false {
                 guard let self = self else { return }
-                self.todos.append(text)
+                self.presenter.addTodo(text)
                 self.tableview.performBatchUpdates {
-                    self.tableview.insertRows(at: [IndexPath(row: self.todos.count-1, section: 0)], with: .automatic)
+                    self.tableview.insertRows(at: [IndexPath(row: self.presenter.todosCount()-1, section: 0)], with: .automatic)
                 }
             }
         }
@@ -44,35 +87,23 @@ class ViewController: UIViewController {
     
     @IBAction func fetchButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                let data = UserDefaults.standard.string(forKey: "todos")
-                self?.todos = data?.components(separatedBy: ",") ?? ["데이터 없음"]
-                self?.tableview.reloadData()
-                self?.indicator.stopAnimating()
-            }
-        })
+        self.presenter.fetchTodos()
     }
     
     @IBAction func saveButtonTapped(_ sender: Any) {
         indicator.startAnimating()
-        DispatchQueue.global().asyncAfter(deadline: .now() + 3, execute: {
-            DispatchQueue.main.async { [weak self] in
-                UserDefaults.standard.set(self?.todos.joined(separator: ","), forKey: "todos")
-                self?.indicator.stopAnimating()
-            }
-        })
+        self.presenter.saveTodos()
     }
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        todos.count
+        self.presenter.todosCount()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
-        cell?.textLabel?.text = todos[indexPath.row]
+        cell?.textLabel?.text = self.presenter.todo(index: indexPath.row)
         return cell ?? UITableViewCell()
     }
     
@@ -87,7 +118,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            todos.remove(at: indexPath.row)
+            self.presenter.removeTodo(index: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
